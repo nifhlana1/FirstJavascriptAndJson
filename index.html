@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+
+<html>
+    
+    <head> 
+        <title></title>
+    
+       
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    </head>
+    
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap')
+        
+    </style>
+    
+    <body>   
+
+    
+    <div class="header">
+      <h1>CHI '20</h1>
+    </div>
+        
+        
+    <div class="headerwrap">
+        
+    <div class="subheading">
+        <p id="subhead0">Conference on Human Factors in Computer Systems</p>
+         <p id="subhead1">6 DAYS</p>
+         <p id="subhead2">100+ SESSIONS </p>
+    </div>
+        
+        
+    <div class="subheadback">
+        <p id="subhead3">
+             The ACM Conference on Human Factors in Computing Systems (CHI) series of academic conferences is generally considered the most prestigious in the field of human-computer interaction. It is hosted by ACM SIGCHI, the Special Interest Group on Computer-Human Interaction. CHI has been held annually since 1982 and attracts thousands of international attendees</p>
+
+        </div>
+
+    
+        
+</div>
+    
+        
+<!--BUTTONS FOR DATE SELECTION-->
+<!--By default, select "all submissions" when day is selected-->
+
+<div id="id01">
+    <button onclick="getData(0);checkRadAll();displayRad();">Saturday 25th</button>
+    <button onclick="getData(1);checkRadAll();displayRad();">Sunday 26th</button>
+    <button onclick="getData(2);checkRadAll();displayRad()">Monday 27th</button>
+    <button onclick="getData(3);checkRadAll();displayRad()">Tuesday 28th</button>
+    <button onclick="getData(4);checkRadAll();displayRad()">Wednesday 29th</button>
+    <button onclick="getData(5);checkRadAll();displayRad()">Thursday 30th</button>
+</div>
+        
+       
+
+        
+<!--RADIO BUTTONS TO FILTER BY PAPER SUBMISSIONS/NON-PAPER-->
+
+
+
+<div id="radio_submissions">
+    <div id="radio_bar">
+        <h5>Filter by submission type:</h5>
+        <input type="radio" id="paperbut" name="submission_type" onclick="hideRadio('paper')" value="paper">
+        <label for="paper">Paper</label><br>
+        <input type="radio" id="non-paperbut" name="submission_type" onclick="hideRadio('non_paper')" value="non-paper">
+        <label for="non-paper">Non-paper</label><br>
+        <input type="radio" id="all-submissionsbut" name="submission_type" onclick="hideRadio('all_subs')" value="all-submissions" checked>
+        <label for="all-submissions">All-submissions</label><br>   
+    </div>
+</div>
+        
+        
+        
+<!--Div for Schedule Day/Date. Will be populated with Javascript function when day selected-->
+        
+<div id="selectedHeading">
+     
+</div>
+
+        
+        
+<!--Div for time filter. Will be populated with times related to a specific day when the day is selected and the relevant javascript function is called-->
+        
+ <div id='dropDownFilter'>
+     
+</div>
+  
+        
+<!--Timetable data-->
+        
+<div id="timeTable">
+    
+        
+</div>
+        
+        
+        
+    <script>
+        
+        var days = [];
+        var displayedData;
+        
+       //Read Json object using Javascript and Ajax
+        
+        var xmlhttp = new XMLHttpRequest();
+        var url = "scheduling.json";
+
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                //Parse the JSON data to a JavaScript variable. 
+                var parsedObj = JSON.parse(xmlhttp.responseText);                    
+                console.log(parsedObj);
+                
+                //CREATE AN OBJECT FOR EACH DAY
+                for (i=0; i<parsedObj.length; i++){
+                    days.push(parsedObj[i]) 
+                }   
+            
+            }
+        };
+                 
+
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+        
+        
+        //FUNCTIONS TO GET TIMESLOTS BY DAY
+        function getData(dayAsNumber) {
+            //We pass in "day as number" above when we call the function on the button. So 0,1,2....
+            console.log("New data");
+            //days = the array of days we pushed to variable "days" when requesting the json data initially
+            //The dayAsNumber is the day passed in above. Eq to displayedData = days[0] OR days[1] etc...
+            //So displayedData = all the data for the specific day I want
+            displayedData = days[dayAsNumber];
+            
+            displayDayHeading(displayedData);
+            timeDropdown(displayedData);
+            displayData(displayedData);      
+            
+        }
+        
+        
+
+        //FUNCTION TO DISPLAY THE TIMESLOTS BY DAY
+        function displayData(daysData) {
+            
+            //Call the function displayData with any of the day objects 
+            
+            var timeSlots =  daysData["slots"];
+            //Then, get the slots for that day
+            htmlString = ""
+            
+            for (var key in timeSlots){
+                //For each key within the slots data for  the day that was passed in
+                var attrName = key;
+                //change key into the variable "attrName"
+                var data = timeSlots[key];
+                //save the keys for the timeslots in the variable data
+                slotId = key;
+                //also, save the value for that key (unique id for the slot) in the variable slotId to use separately
+                
+                htmlString += "<button id='timeButton' onclick=hideCssIds('"+slotId+"')>";
+                
+                
+                
+                
+                console.log(data["time"]);
+                console.log("<img class='arrow_image' id='ArrowRight_'"+slotId+" src='images/icons8-expand-arrow-50.png' >")
+                
+                htmlString+="<img class='arrow_image' id='ArrowRight_"+slotId+"' src='images/icons8-expand-arrow-50.png' > "
+                htmlString += data["time"];
+                //print time values for the slot on that day
+                htmlString += "</button>";
+                sessionTitle = displaySlots(data, slotId);
+                
+                //call the function displaySlots with the keys for the time slots for that day AND each individual slot ids on the particular day
+                htmlString += sessionTitle;
+                
+                
+                
+                
+            }
+            
+            
+            document.getElementById("timeTable").innerHTML = htmlString;
+            
+        }
+  
+        
+        
+        
+        
+        
+        
+        
+    
+    
+
+        
+        
+        
+        
+        
+    
+        //Function to display all SESSIONS in slots
+        //For each session display TITLE, START TIME, LOCATION, SESSION TYPE
+        //When creating session, create additional div (HIDDEN) called id=sessionInfo for each session, with the title, start time, location and session type. 
+        //Div id = sesssion name   id = type (so we can filter by paper/non-paper/all)
+        
+        
+        
+        function displaySlots (slotsData, dateTimeId) {
+            
+            var sizeOfSessions = slotsData['sessions'].length;
+            
+
+                        
+            var sessionDiv, sessionType, sessionLocation, sessionStartTime, sessionTitle;
+            
+            var sessionDiv = "<div class='sessionDiv' id='"+dateTimeId+"'>";
+            
+            //if type = paper
+                
+            for (var i=0; i<sizeOfSessions; i++){
+                
+                    sessionDiv += "<div class='sessionInfo "+slotsData['sessions'][i]['type']+"'>";
+                
+                    //SESSION TITLE
+                    //Create id for titles so we can edit style easily with CSS
+                    sessionDiv+= "<p class='titleHeading' onclick=hideCssIds('sub-"+slotsData['sessions'][i]["sessionId"]+"')>";
+                    sessionDiv+= slotsData['sessions'][i]["title"]+ "</p>";
+
+
+                    //SESSION TIME
+                    sessionDiv+= "<p class='timeHeading'>";
+                    sessionDiv+= "<img src='images/icons8-clock-24.png'>  "+ slotsData['sessions'][i]["time"]+ "</p>";
+
+                    //SESSION ROOM
+                    sessionDiv+= "<p class='roomHeading'>";
+                    sessionDiv+= "Location: "+ slotsData['sessions'][i]["room"]+"</p>";
+
+                    //SESSION TYPE
+
+                    sessionDiv+= "<p class= 'type_"+slotsData['sessions'][i]["type"]+"'>";
+                    sessionDiv+= "Session type: "+slotsData['sessions'][i]["type"]+"</p>";
+                
+                    
+                                  
+                    sessionDiv+= "</div>";
+                
+                    var submissionInfo = slotsData['sessions'][i]["submissions"];
+                    var sessionId = slotsData['sessions'][i]["sessionId"];
+                    var submissionInfoHtml = displaySubmissions(submissionInfo, sessionId);
+                    sessionDiv += submissionInfoHtml;
+                
+                
+            }
+            
+            if (sizeOfSessions <= 0) {
+                sessionDiv+="<p class='NoData'>No sessions occurring at this time.</p>";
+            }
+            sessionDiv+="</div>";
+            
+            return sessionDiv;
+            
+        };
+        
+        
+        
+        
+         function displaySubmissions(submissionsData, sessionId) {
+             
+            var sizeOfSubmissions = submissionsData.length;
+            var submissionDiv, submissionTitle, submissionUrl;
+            var submissionDiv = "<div style='display:none' class='submissionDiv' id='sub-"+sessionId+"'>";
+            submissionDiv += "<h4 id='submissionsHeader'>Submissions in this session: </h5>"
+            
+            //if type = paper
+            for (var i=0; i<sizeOfSubmissions; i++){
+                
+                
+                    //SUBMISSION TITLE
+                    
+                    submissionDiv+= "<p class='submissionTitle'>Submission Title: ";
+                    submissionDiv+= submissionsData[i]["title"]+ "</p>";
+
+
+                    //SUBMISSION URL
+                    submissionDiv+= "<p class='submissionUrl'>";
+                    submissionDiv+= "Url: <a href='"+ submissionsData[i]["doiUrl"]+ "'target='blank'>"+ submissionsData[i]["doiUrl"]+"</a>";
+
+        
+                    submissionDiv+= "<br>";
+                
+                
+                
+            }
+             
+             
+             
+             
+            submissionDiv+="</div>";
+            
+            return submissionDiv;
+            
+        };
+    
+    
+        
+        
+        //Function to open and close divs and turn arrows accordingly
+        
+        function hideCssIds(idValue){
+            console.log("hide css" + idValue);
+            var x = document.getElementById(idValue);
+            var rightArrow = document.getElementById('ArrowRight_'+idValue);
+
+//            rightArrow.src = "images/right_arrow.png";
+            
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                rightArrow.src = "images/icons8-expand-arrow-50.png";
+        
+            } else {
+                x.style.display = "none";
+                rightArrow.src = "images/right_arrow.png";
+            }
+        }
+        
+        
+
+    
+
+
+
+        //Function: When button clicked, hide all class sessionData
+        //Then open class id that you want 
+        
+        
+         function hideCssClasses(){
+            var x = document.getElementsByClassName("sessionDiv");
+             
+            for(i=0;i<x.length;i++){
+                var idOfSlot = x[i].id;
+                x[i].style.display = "none";
+                var rightArrow = document.getElementById('ArrowRight_'+idOfSlot);
+                rightArrow.src = "images/right_arrow.png";
+            };
+             
+         }
+        
+        function showCssClasses(){
+            var x = document.getElementsByClassName("sessionDiv");
+            for(i=0;i<x.length;i++){
+                x[i].style.display = "block";
+                var idOfSlot = x[i].id;
+                var rightArrow = document.getElementById('ArrowRight_'+idOfSlot);
+                rightArrow.src = "images/icons8-expand-arrow-50.png";
+            };
+         }
+             
+           
+        
+        
+             
+ 
+        
+        
+         //Hide nonpaper when type=paper, hide paper when type=non-paper, show all when type=show all 
+        //Close sessions and submissions each time
+         function hideRadio(type_Selected){
+            
+            if (type_Selected==="paper"){
+                
+                var divToUpdateIfNoValue = document.getElementsByClassName("sessionDiv");
+                
+                var y = document.getElementsByClassName("sessionInfo");
+                for(i=0;i<y.length;i++){
+                    y[i].style.display = "none";
+                }
+                
+                var x = document.getElementsByClassName("paper");
+                for(i=0;i<x.length;i++){
+                    x[i].style.display = "block";
+                }
+                
+                var a = document.getElementsByClassName("NoData");
+                for (i=0; i<a.length; i++) {
+                    a[i].style.display = "none";
+                }
+                
+//                if(x.length === 0){
+//                    
+//                    var text = document.createTextNode("No paper sessions display.");                    
+//                    divToUpdateIfNoValue.appendChild(text);
+////                    
+//////                    divToUpdateIfNoValue +="<p class='nopaper_notice' style='display:block'> No paper sessions display </p>"
+////                    console.log("no value")
+//                }
+                    
+             
+             } else if (type_Selected==="non_paper"){
+                var y = document.getElementsByClassName("sessionInfo");
+                for(i=0;i<y.length;i++){
+                    y[i].style.display = "block";
+                }
+                
+                var x = document.getElementsByClassName("paper");
+                for(i=0;i<x.length;i++){
+                    x[i].style.display = "none";
+                } 
+                 
+            } else {
+                var y = document.getElementsByClassName("sessionInfo");
+                for(i=0;i<y.length;i++){
+                    y[i].style.display = "block";
+                }
+                
+                var x = document.getElementsByClassName("paper");
+                for(i=0;i<x.length;i++){
+                    x[i].style.display = "block";
+                }
+            }      
+             // Close all the child classes as well no matter what is clicked
+            var y = document.getElementsByClassName("submissionDiv");
+            for (i=0; i<y.length; i++) {
+                y[i].style.display = "none";
+            }
+             
+             
+            var a = document.getElementsByClassName("NoData");
+            for (i=0; i<a.length; i++) {
+                a[i].style.display = "none";
+            }
+         };
+       
+             
+       
+             
+             
+   //If paper unchecked, check it
+        
+        function checkRadAll(){
+              document.getElementById('all-submissionsbut').checked = true;
+            }
+        
+    
+    //Display radio buttons when function called
+        function displayRad(){
+              document.getElementById('radio_submissions').style.display="block";
+            }
+        
+
+    //Change Page Header, depending on day selected:
+        function dayHeaderSat(){
+            headerHTML=""
+            headerHTML+= "<h2> Timetable for Saturday 25th </h2>"
+            
+        }
+        
+        function rotateMe(id) {
+            var className = document.getElementById(id).classList[0];
+            var elementObj = document.getElementById(id);
+
+            
+           
+                        
+            if (className == "open") {
+                elementObj.className = "close";   
+            } else if (className == "close") {
+                elementObj.className = "rotateBack";
+            }else {
+                elementObj.className = "close";   
+            } 
+            
+        }
+        
+        
+        
+        
+                           
+                        
+        function timeDropdown(displayedData){
+            
+
+            var timeSlots =  displayedData["slots"];
+            console.log("start");
+            console.log(timeSlots);
+            console.log("finish");
+
+            
+            htmlString = "<button hideCssIds('"+key+"') class='dropBtn'>Filter by Time </button><div class = 'dropdown-content'>"
+            
+            for (var key in timeSlots){
+   
+                // change key into the variable "attrName"
+                var data = timeSlots[key];
+                // id 
+                var slotId = key;
+                // timeslots
+                var time = data["time"];
+                
+                htmlString+="<a onclick=hideCssClasses();hideCssIds('"+key+"')>"+time+"</a>"
+                
+
+                console.log(slotId);
+                console.log(data["time"]);
+            }
+            htmlString+="<a onclick=showCssClasses()>Show all</a>";
+            htmlString+="</div>";
+            
+            
+            
+            document.getElementById("dropDownFilter").innerHTML = htmlString;
+            
+            console.log("finish");
+            
+
+        };
+        
+        
+
+        
+        
+        
+        
+        
+        //Function to display day 
+        
+
+            function displayDayHeading(daysData){
+                
+                var dateback = reverseDate(daysData["date"]);
+                var htmlString ="";
+        
+                htmlString+= "<p id='dayHeader'> Schedule for "+daysData["day"]+"</p>"
+                htmlString+= "<p id='dayHeaderDate'>"+dateback+"</p>";
+                
+            
+                document.getElementById("selectedHeading").innerHTML = htmlString;
+            }
+        
+        
+        
+        function reverseDate(str) {
+            // Step 1. Use the split() method to return a new array
+            var splitString = str.split("-"); // var splitString = "hello".split("");
+
+            // Step 2. Use the reverse() method to reverse the new created array
+            var reverseArray = splitString.reverse(); // var reverseArray = ["h", "e", "l", "l", "o"].reverse();
+            // ["o", "l", "l", "e", "h"]
+
+            // Step 3. Use the join() method to join all elements of the array into a string
+            var joinArray = reverseArray.join("-"); // var joinArray = ["o", "l", "l", "e", "h"].join("");
+            // "olleh"
+
+            //Step 4. Return the reversed string
+            return joinArray; // "olleh"
+        }
+        
+        
+        
+        
+        
+        function arrowsClose(){
+             var rightArrow = document.getElementById('ArrowRight_'+idValue);
+            rightArrow.src = "images/right_arrow.png";
+        
+        }
+        
+        
+        
+        
+        
+        
+  
+     
+    </script>
+        
+        
+        
+  
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    </body>
+    
+
+
+
+
+
+</html>
